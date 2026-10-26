@@ -103,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentUser.name}
                 </div>
                 <div className="text-[10px] text-slate-500">
-                  {currentUser.className || 'Lớp 4A1'}
+                  {currentUser.className || 'Lớp 4A8'}
                 </div>
               </div>
             </div>

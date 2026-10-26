@@ -905,10 +905,19 @@ async function createServer() {
     }
 
     if (user.role === 'teacher') {
-      // Teacher sees submissions for their class
-      const teacherSubs = db.submissions.filter(
-        s => s.studentClass === user.className || !s.studentClass
-      );
+      // Teacher sees submissions for their class (robustly matching Lớp 4A8, classId, and student roster)
+      const teacherClass = (user.className || 'Lớp 4A8').trim().toLowerCase();
+      const teacherSubs = db.submissions.filter(s => {
+        if (!s.studentClass) return true;
+        const subClass = s.studentClass.trim().toLowerCase();
+        if (subClass === teacherClass || subClass.includes(teacherClass) || teacherClass.includes(subClass)) return true;
+        if (teacherClass.includes('4a8') && (subClass.includes('4a8') || (s.studentCode && s.studentCode.includes('4A8')))) return true;
+        const studentObj = db.users.find(u => u.id === s.studentId);
+        if (studentObj && (studentObj.classId === 'class-4a8' || (studentObj.className && studentObj.className.toLowerCase().includes('4a8')))) {
+          return true;
+        }
+        return false;
+      });
       return res.json(teacherSubs);
     }
 
@@ -917,9 +926,31 @@ async function createServer() {
   });
 
   // POST /api/submissions (Student submits essay)
-  app.post('/api/submissions', authMiddleware, requireRole(['student']), (req: AuthRequest, res: Response) => {
-    const user = req.user!;
-    const { assignmentId, lessonId, lessonTitle, content, wordCount } = req.body;
+  app.post('/api/submissions', (req: Request, res: Response) => {
+    let user: DbUser | undefined;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+        user = db.users.find(u => u.id === decoded.userId);
+      } catch {
+        // Fallback to body student identity if token expired
+      }
+    }
+
+    const {
+      assignmentId,
+      lessonId,
+      lessonTitle,
+      content,
+      wordCount,
+      studentId,
+      studentName,
+      studentClass,
+      studentCode,
+      studentAvatar,
+    } = req.body;
 
     if (!content || !content.trim()) {
       return res.status(400).json({ error: 'Nội dung bài viết không được để trống.' });
@@ -929,8 +960,54 @@ async function createServer() {
     const words = wordCount || cleanContent.split(/\s+/).filter(Boolean).length;
     const nowVi = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString('vi-VN');
 
-    // Check if there is already an existing submission for this lesson
-    const existing = db.submissions.find(s => s.studentId === user.id && s.lessonId === lessonId);
+    // Resolve student identity
+    const finalStudentName = (user?.fullName || studentName || 'Học sinh Lớp 4A8').trim();
+    const finalStudentClass = (user?.className || studentClass || 'Lớp 4A8').trim();
+    let finalStudentId = user?.id || studentId;
+
+    // Look for matching student in db.users
+    let matchedDbStudent = user;
+    if (!matchedDbStudent && finalStudentId) {
+      matchedDbStudent = db.users.find(u => u.id === finalStudentId);
+    }
+    if (!matchedDbStudent && finalStudentName) {
+      matchedDbStudent = db.users.find(u => u.role === 'student' && u.fullName.trim().toLowerCase() === finalStudentName.toLowerCase());
+    }
+
+    if (matchedDbStudent) {
+      finalStudentId = matchedDbStudent.id;
+    } else {
+      finalStudentId = finalStudentId && finalStudentId !== 'student-guest' && finalStudentId !== 'student-mai-anh' 
+        ? finalStudentId 
+        : `student-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+      const classTag = finalStudentClass.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || '4A8';
+      const codeNum = (db.users.filter(u => u.role === 'student' && u.className === finalStudentClass).length + 1).toString().padStart(2, '0');
+      const newStudentUser: DbUser = {
+        id: finalStudentId,
+        fullName: finalStudentName,
+        username: `hs_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+        role: 'student',
+        className: finalStudentClass,
+        classId: 'class-4a8',
+        schoolName: 'Trường Tiểu học Kim Liên A',
+        studentCode: studentCode || `HS${classTag}-${codeNum}`,
+        pinCode: '1234',
+        status: 'active',
+        avatar: studentAvatar || '🎒',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
+      db.users.push(newStudentUser);
+      matchedDbStudent = newStudentUser;
+    }
+
+    const finalStudentCode = matchedDbStudent?.studentCode || user?.studentCode || studentCode || 'HS4A8-XX';
+    const finalStudentAvatar = matchedDbStudent?.avatar || user?.avatar || studentAvatar || '🎒';
+    const finalSchoolId = matchedDbStudent?.schoolId || user?.schoolId || 'school-kimlien-a';
+
+    // Check if there is already an existing submission for this student and lesson
+    const existing = db.submissions.find(s => s.studentId === finalStudentId && s.lessonId === lessonId);
 
     if (existing) {
       // Resubmission flow
@@ -938,10 +1015,13 @@ async function createServer() {
       existing.wordCount = words;
       existing.submittedAt = nowVi;
       existing.status = 'pending';
+      existing.studentName = finalStudentName;
+      existing.studentClass = finalStudentClass;
+      existing.studentCode = finalStudentCode;
       existing.resubmittedCount = (existing.resubmittedCount || 0) + 1;
       existing.isPublishedToStudent = false; // Reset to unpublished until teacher re-grades
       saveDb();
-      logAudit(user.id, user.fullName, 'RESUBMIT_ESSAY', `Nộp lại bài: ${existing.lessonTitle} (${words} từ)`, req.ip);
+      logAudit(finalStudentId, finalStudentName, 'RESUBMIT_ESSAY', `Nộp lại bài: ${existing.lessonTitle} (${words} từ) - ${finalStudentClass}`, req.ip);
       return res.json(existing);
     }
 
@@ -950,12 +1030,12 @@ async function createServer() {
       assignmentId,
       lessonId: lessonId || 'lesson-01',
       lessonTitle: lessonTitle || 'Bài làm văn lớp 4',
-      studentId: user.id,
-      studentName: user.fullName,
-      studentCode: user.studentCode || 'HS4A8-XX',
-      studentClass: user.className || 'Lớp 4A8',
-      studentAvatar: user.avatar || '👧',
-      schoolId: user.schoolId,
+      studentId: finalStudentId,
+      studentName: finalStudentName,
+      studentCode: finalStudentCode,
+      studentClass: finalStudentClass,
+      studentAvatar: finalStudentAvatar,
+      schoolId: finalSchoolId,
       submittedAt: nowVi,
       status: 'pending',
       wordCount: words,
@@ -968,7 +1048,7 @@ async function createServer() {
     db.submissions.unshift(newSub);
     saveDb();
 
-    logAudit(user.id, user.fullName, 'SUBMIT_ESSAY', `Nộp bài: ${newSub.lessonTitle} (${words} từ)`, req.ip);
+    logAudit(finalStudentId, finalStudentName, 'SUBMIT_ESSAY', `Nộp bài: ${newSub.lessonTitle} (${words} từ) - ${finalStudentClass}`, req.ip);
     return res.status(201).json(newSub);
   });
 

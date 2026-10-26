@@ -138,7 +138,18 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ currentUser, onNavigat
 
   useEffect(() => {
     loadData();
-  }, []);
+    // Auto-poll for new submissions every 5 seconds so teacher receives student essays in real time
+    const interval = setInterval(() => {
+      api.getSubmissions()
+        .then(subs => {
+          if (Array.isArray(subs)) {
+            setSubmissions(subs);
+          }
+        })
+        .catch(() => {});
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentUser?.className]);
 
   const filteredSubs = submissions.filter((s) => {
     if (filterStatus === 'all') return true;
@@ -826,27 +837,43 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ currentUser, onNavigat
               </p>
             </div>
 
-            {/* Filter pills */}
-            <div className="flex items-center gap-1.5 text-xs flex-wrap">
-              {[
-                { id: 'all', label: 'Tất cả' },
-                { id: 'pending', label: 'Chờ chấm' },
-                { id: 'draft', label: 'Nháp nhận xét' },
-                { id: 'graded', label: 'Đã phát hành' },
-                { id: 'needs_edit', label: 'Cần sửa lại' },
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setFilterStatus(f.id)}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                    filterStatus === f.id
-                      ? 'bg-purple-700 text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+            {/* Refresh button & Filter pills */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  loadData();
+                  showToast('Đã làm mới danh sách bài nộp!');
+                }}
+                disabled={loading}
+                className="px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                title="Làm mới để kiểm tra bài nộp mới nhất từ học sinh"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                <span>Làm mới</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 text-xs flex-wrap">
+                {[
+                  { id: 'all', label: 'Tất cả' },
+                  { id: 'pending', label: 'Chờ chấm' },
+                  { id: 'draft', label: 'Nháp nhận xét' },
+                  { id: 'graded', label: 'Đã phát hành' },
+                  { id: 'needs_edit', label: 'Cần sửa lại' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setFilterStatus(f.id)}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      filterStatus === f.id
+                        ? 'bg-purple-700 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

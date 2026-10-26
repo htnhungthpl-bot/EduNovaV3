@@ -81,7 +81,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, currentUser }) =
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium">
             <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-amber-200 shadow-xs">
               <UserCheck className="w-4 h-4 text-emerald-600" />
-              <span>Đang đăng nhập: <strong>{currentUser.name}</strong> ({currentUser.className || 'Lớp 4A1'})</span>
+              <span>Đang đăng nhập: <strong>{currentUser.name}</strong> ({currentUser.className || 'Lớp 4A8'})</span>
             </div>
 
             <div className="flex items-center gap-1.5 bg-white px-3.5 py-2 rounded-xl border border-amber-200 shadow-xs text-amber-900 font-bold">

@@ -29,7 +29,7 @@
       "mustChangePassword": false,
       "createdAt": "2026-10-22T07:54:32.625Z",
       "updatedAt": "2026-10-22T07:54:32.625Z",
-      "lastLoginAt": "2026-10-23T07:57:48.343Z",
+      "lastLoginAt": "2026-10-26T14:47:07.000Z",
       "passwordHash": "$2b$10$orP/dT83HFCjPLoRt00VQeJQtRIpuxr7BUt6tAXCbkN6C87tqwoA."
     },
     {
@@ -63,7 +63,7 @@
       "avatar": "👦",
       "createdAt": "2026-10-23T07:35:57.743Z",
       "updatedAt": "2026-10-23T07:35:57.743Z",
-      "lastLoginAt": "2026-10-23T07:56:31.698Z"
+      "lastLoginAt": "2026-10-26T14:38:36.811Z"
     },
     {
       "id": "student-1792740957743-aond",
@@ -606,9 +606,148 @@
     }
   ],
   "assignments": [],
-  "submissions": [],
+  "submissions": [
+    {
+      "id": "sub-1793026016077-ip6n",
+      "lessonId": "lesson-03",
+      "lessonTitle": "Tả con mèo mướp nhà em",
+      "studentId": "student-1792740957743-228e",
+      "studentName": "Lê Xuân Bách",
+      "studentCode": "HS4A8 -04",
+      "studentClass": "Lớp 4A8",
+      "studentAvatar": "👧",
+      "schoolId": "school-kimlien-a",
+      "submittedAt": "14:46, 26/10/2026",
+      "status": "graded",
+      "wordCount": 182,
+      "content": "Chú mèo mướp nhà em có bộ lông màu xám tro với những vệt đen như một chú hổ con. Đôi mắt chú tròn xoe như hai hòn bi ve trong veo.",
+      "versionCount": 1,
+      "isPublishedToStudent": true,
+      "resubmittedCount": 0,
+      "score": 9.5,
+      "teacherComment": "Cô khen ngợi em Bách tả con mèo rất sinh động, có nhiều hình ảnh so sánh đẹp!",
+      "gradedAt": "2026-10-26T14:47:07.120Z",
+      "gradedBy": "Cô Hoàng Thị Nhung"
+    },
+    {
+      "id": "sub-1793026010450-nfi9",
+      "lessonId": "lesson-02",
+      "lessonTitle": "Miêu tả cây bàng mùa đông",
+      "studentId": "user-1792740945188-hn95",
+      "studentName": "Phạm Duy Khánh",
+      "studentCode": "HS4A8 -15",
+      "studentClass": "Lớp 4A8",
+      "studentAvatar": "🎒",
+      "schoolId": "school-kimlien-a",
+      "submittedAt": "14:46, 26/10/2026",
+      "status": "pending",
+      "wordCount": 175,
+      "content": "Cây bàng mùa đông đứng lặng lẽ giữa sân trường. Những chiếc lá đỏ ối cuối cùng rụng xuống nhường chỗ cho những búp non mơn mởn đang ấp ủ chờ xuân sang.",
+      "versionCount": 1,
+      "isPublishedToStudent": false,
+      "resubmittedCount": 0
+    },
+    {
+      "id": "sub-1793025516864-6a5q",
+      "lessonId": "lesson-01",
+      "lessonTitle": "Tả cây bàng mùa đông",
+      "studentId": "student-1792740957743-wap7",
+      "studentName": "Nguyễn Thế Anh",
+      "studentCode": "HS4A8 -01",
+      "studentClass": "Lớp 4A8",
+      "studentAvatar": "👦",
+      "submittedAt": "14:38, 26/10/2026",
+      "status": "pending",
+      "wordCount": 160,
+      "content": "Mùa đông về trên sân trường em, cây bàng trụi lá nhưng vẫn kiên cường đứng đón gió rét...",
+      "versionCount": 1,
+      "isPublishedToStudent": false,
+      "resubmittedCount": 0
+    }
+  ],
   "diamondNotes": [],
   "auditLogs": [
+    {
+      "id": "log-1793026027120-0wc8g",
+      "userId": "teacher-1792655672625-x1rw",
+      "username": "htnhung_thpl",
+      "action": "PUBLISH_REVIEW",
+      "details": "Phát hành nhận xét bài Lê Xuân Bách: 9.5đ",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:47:07.120Z"
+    },
+    {
+      "id": "log-1793026027001-9ck7o",
+      "userId": "teacher-1792655672625-x1rw",
+      "username": "htnhung_thpl",
+      "action": "GOOGLE_LOGIN",
+      "details": "Giáo viên đăng nhập qua Google: hoangnhung.thpl@gmail.com",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:47:07.001Z"
+    },
+    {
+      "id": "log-1793026021553-qzyl7",
+      "userId": "teacher-1792655672625-x1rw",
+      "username": "htnhung_thpl",
+      "action": "GOOGLE_LOGIN",
+      "details": "Giáo viên đăng nhập qua Google: hoangnhung.thpl@gmail.com",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:47:01.553Z"
+    },
+    {
+      "id": "log-1793026016078-g26n8",
+      "userId": "student-1792740957743-228e",
+      "username": "Lê Xuân Bách",
+      "action": "SUBMIT_ESSAY",
+      "details": "Nộp bài: Tả con mèo mướp nhà em (182 từ) - Lớp 4A8",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:46:56.078Z"
+    },
+    {
+      "id": "log-1793026010451-laz3w",
+      "userId": "user-1792740945188-hn95",
+      "username": "Phạm Duy Khánh",
+      "action": "SUBMIT_ESSAY",
+      "details": "Nộp bài: Miêu tả cây bàng mùa đông (175 từ) - Lớp 4A8",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:46:50.451Z"
+    },
+    {
+      "id": "log-1793025522953-75n1d",
+      "userId": "teacher-1792655672625-x1rw",
+      "username": "htnhung_thpl",
+      "action": "GOOGLE_LOGIN",
+      "details": "Giáo viên đăng nhập qua Google: hoangnhung.thpl@gmail.com",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:38:42.953Z"
+    },
+    {
+      "id": "log-1793025516865-xh9eu",
+      "userId": "student-1792740957743-wap7",
+      "username": "Nguyễn Thế Anh",
+      "action": "SUBMIT_ESSAY",
+      "details": "Nộp bài: Tả cây bàng mùa đông (160 từ)",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:38:36.865Z"
+    },
+    {
+      "id": "log-1793025516811-lur2y",
+      "userId": "student-1792740957743-wap7",
+      "username": "Nguyễn Thế Anh",
+      "action": "STUDENT_LOGIN",
+      "details": "Học sinh đăng nhập vào Lớp 4A8",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:38:36.811Z"
+    },
+    {
+      "id": "log-1793025358271-ilnqf",
+      "userId": "teacher-1792655672625-x1rw",
+      "username": "htnhung_thpl",
+      "action": "GOOGLE_LOGIN",
+      "details": "Giáo viên đăng nhập qua Google: htnhung.thpl@gmail.com",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-10-26T14:35:58.271Z"
+    },
     {
       "id": "log-1792742268344-qnhrm",
       "userId": "teacher-1792655672625-x1rw",

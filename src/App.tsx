@@ -36,6 +36,14 @@ export default function App() {
     api.getMe().then((user) => {
       if (user) {
         setCurrentUser(user);
+      } else if (currentUser?.role === 'student' && !api.hasToken()) {
+        // Ensure student has a live session token so submissions succeed immediately
+        api.login({
+          role: 'student',
+          fullName: currentUser.name,
+          className: currentUser.className || 'Lớp 4A8',
+          pinCode: currentUser.pinCode || '1234',
+        }).catch(() => {});
       }
     }).catch(() => {
       // Fallback to offline/cached user

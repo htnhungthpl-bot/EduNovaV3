@@ -233,6 +233,11 @@ export const WritingStudioView: React.FC<WritingStudioViewProps> = ({
         lessonTitle: currentLesson?.lessonTitle || 'Bài làm văn lớp 4',
         content: activeContent,
         wordCount: wordCount,
+        studentId: currentUser.id,
+        studentName: currentUser.name,
+        studentClass: currentUser.className || 'Lớp 4A8',
+        studentCode: currentUser.studentCode,
+        studentAvatar: currentUser.avatar,
       });
 
       confetti({
@@ -240,7 +245,7 @@ export const WritingStudioView: React.FC<WritingStudioViewProps> = ({
         spread: 80,
         origin: { y: 0.55 },
       });
-      showToast('🎉 Chúc mừng em! Bài văn đã hoàn thành và lưu vào hệ thống của Cô giáo chủ nhiệm.');
+      showToast(`🎉 Chúc mừng em ${currentUser.name}! Bài văn đã được gửi thành công đến Cô giáo chủ nhiệm (${currentUser.className || 'Lớp 4A8'}).`);
     } catch (err: any) {
       showToast(err.message || 'Lỗi gửi bài lên máy chủ, bản nháp vẫn được giữ an toàn trên máy.');
     } finally {

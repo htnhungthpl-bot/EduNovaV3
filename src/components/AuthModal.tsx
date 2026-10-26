@@ -316,13 +316,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  // Quick Preset fill for testers
-  const fillStudentPreset = (name: string, pin: string) => {
-    setStudentClass('Lớp 4A8');
-    setStudentName(name);
-    setStudentPin(pin);
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
@@ -499,30 +492,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     type="email"
                     value={googleEmail}
                     onChange={(e) => setGoogleEmail(e.target.value)}
-                    placeholder="htnhung.thpl@gmail.com"
+                    placeholder="nhap.email.cua.ban@gmail.com"
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-hidden font-medium"
                     required
                   />
-                </div>
-
-                <div className="space-y-1">
-                  <div className="text-[11px] text-slate-500 font-semibold">Tài khoản đề xuất:</div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setGoogleEmail('htnhung.thpl@gmail.com')}
-                      className="text-[11px] text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-200 font-medium cursor-pointer"
-                    >
-                      htnhung.thpl@gmail.com
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setGoogleEmail('nguyenthuha.kimliena@gmail.com')}
-                      className="text-[11px] text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-200 font-medium cursor-pointer"
-                    >
-                      nguyenthuha.kimliena@gmail.com
-                    </button>
-                  </div>
                 </div>
 
                 <button
@@ -955,18 +928,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => {
                   api.logout();
                   onSelectUser({
-                    id: 'student-mai-anh',
-                    name: 'Nguyễn Mai Anh',
-                    username: 'maianh_4a1',
-                    studentCode: 'HS4A1-01',
+                    id: 'student-guest',
+                    name: 'Học sinh Lớp 4A8',
+                    username: 'hocsinh_4a8',
+                    studentCode: 'HS4A8-01',
                     pinCode: '1234',
                     role: 'student',
                     school: 'Trường Tiểu học Kim Liên A',
-                    className: 'Lớp 4A1',
-                    avatar: '👧',
-                    starsCount: 42,
-                    streakDays: 4,
-                    completedEssays: 6,
+                    className: 'Lớp 4A8',
+                    avatar: '🎒',
+                    starsCount: 0,
+                    streakDays: 1,
+                    completedEssays: 0,
                   });
                   onClose();
                 }}

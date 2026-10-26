@@ -33,6 +33,10 @@ export function setStoredUser(user: UserProfile | null) {
   }
 }
 
+export function hasToken(): boolean {
+  return !!getStoredToken();
+}
+
 // Client-Side Fallback for static hosting (Vercel, Netlify, GitHub Pages)
 function handleStaticFallback<T>(endpoint: string, options: RequestInit = {}): T {
   const method = (options.method || 'GET').toUpperCase();
@@ -86,7 +90,7 @@ function handleStaticFallback<T>(endpoint: string, options: RequestInit = {}): T
         fullName: studentName,
         username: studentName.toLowerCase().replace(/\s+/g, '_'),
         role: 'student',
-        className: className || 'Lớp 4A1',
+        className: className || 'Lớp 4A8',
         schoolName: 'Trường Tiểu học Kim Liên A',
         avatar: '🎒',
         studentCode: code,
@@ -223,7 +227,7 @@ function handleStaticFallback<T>(endpoint: string, options: RequestInit = {}): T
       fullName: (fullName || 'Giáo viên').trim(),
       username: (email || '').split('@')[0],
       role: 'teacher',
-      className: className || 'Lớp 4A1',
+      className: className || 'Lớp 4A8',
       schoolName: schoolName || 'Trường Tiểu học Kim Liên A',
       avatar: '👩‍🏫',
       email: email,
@@ -358,6 +362,62 @@ function handleStaticFallback<T>(endpoint: string, options: RequestInit = {}): T
     } as unknown as T;
   }
 
+  // 9.5 Submissions Fallback
+  if (endpoint === '/api/submissions') {
+    const localSubsKey = 'edunova_local_submissions';
+    const saved = localStorage.getItem(localSubsKey);
+    let subs: any[] = saved ? JSON.parse(saved) : [];
+
+    if (method === 'GET') {
+      const user = getStoredUser();
+      if (user?.role === 'student') {
+        return subs.filter(s => s.studentId === user.id) as unknown as T;
+      }
+      return subs as unknown as T;
+    }
+
+    if (method === 'POST') {
+      const user = getStoredUser();
+      const newSub = {
+        id: `sub-local-${Date.now()}`,
+        lessonId: body.lessonId || 'lesson-01',
+        lessonTitle: body.lessonTitle || 'Bài làm văn lớp 4',
+        content: body.content,
+        wordCount: body.wordCount || 150,
+        studentId: body.studentId || user?.id || `student-${Date.now()}`,
+        studentName: body.studentName || user?.name || 'Học sinh Lớp 4A8',
+        studentCode: body.studentCode || user?.studentCode || 'HS4A8-01',
+        studentClass: body.studentClass || user?.className || 'Lớp 4A8',
+        studentAvatar: body.studentAvatar || user?.avatar || '🎒',
+        submittedAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString('vi-VN'),
+        status: 'pending',
+        versionCount: 1,
+        isPublishedToStudent: false,
+        resubmittedCount: 0,
+      };
+      subs.unshift(newSub);
+      localStorage.setItem(localSubsKey, JSON.stringify(subs));
+      return newSub as unknown as T;
+    }
+  }
+
+  if (endpoint.includes('/api/submissions/') && endpoint.endsWith('/review') && method === 'POST') {
+    const localSubsKey = 'edunova_local_submissions';
+    const saved = localStorage.getItem(localSubsKey);
+    let subs: any[] = saved ? JSON.parse(saved) : [];
+    const id = endpoint.split('/api/submissions/')[1].split('/review')[0];
+    const sub = subs.find(s => s.id === id);
+    if (sub) {
+      if (body.score !== undefined) sub.score = body.score;
+      if (body.teacherComment !== undefined) sub.teacherComment = body.teacherComment;
+      if (body.rubricScores !== undefined) sub.rubricScores = body.rubricScores;
+      sub.isPublishedToStudent = !!body.isPublished;
+      sub.status = body.isPublished ? 'graded' : 'pending';
+      localStorage.setItem(localSubsKey, JSON.stringify(subs));
+    }
+    return { success: true } as unknown as T;
+  }
+
   // 10. Users CRUD Fallback
   if (endpoint === '/api/users') {
     if (method === 'GET') {
@@ -484,6 +544,9 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 }
 
 export const api = {
+  hasToken(): boolean {
+    return !!getStoredToken();
+  },
   // Auth
   async login(credentials: {
     role: string;
@@ -728,10 +791,24 @@ export const api = {
     lessonTitle: string;
     content: string;
     wordCount: number;
+    studentId?: string;
+    studentName?: string;
+    studentClass?: string;
+    studentCode?: string;
+    studentAvatar?: string;
   }): Promise<any> {
+    const user = getStoredUser();
+    const payload = {
+      ...submission,
+      studentId: submission.studentId || user?.id,
+      studentName: submission.studentName || user?.name,
+      studentClass: submission.studentClass || user?.className || 'Lớp 4A8',
+      studentCode: submission.studentCode || user?.studentCode,
+      studentAvatar: submission.studentAvatar || user?.avatar || '🎒',
+    };
     return apiRequest<any>('/api/submissions', {
       method: 'POST',
-      body: JSON.stringify(submission),
+      body: JSON.stringify(payload),
     });
   },
 
