@@ -12,7 +12,18 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = parseInt(process.env.PORT || '3000', 10);
+function getPort(): number {
+  const portArgIndex = process.argv.indexOf('--port');
+  if (portArgIndex !== -1 && process.argv[portArgIndex + 1]) {
+    return parseInt(process.argv[portArgIndex + 1], 10);
+  }
+  if (process.env.DEFAULT_APP_PORT) {
+    return parseInt(process.env.DEFAULT_APP_PORT, 10);
+  }
+  return 3000;
+}
+
+const PORT = getPort();
 const JWT_SECRET = process.env.JWT_SECRET || 'edunova-official-jwt-secret-2026-vn';
 
 // Initialize Gemini Client
@@ -1782,11 +1793,19 @@ Nhiệm vụ: Tổng hợp 3 lỗi sai phổ biến nhất học sinh hay mắc 
     });
   });
 
+  // Health check endpoint for container supervisor and proxy probes
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime(), time: new Date().toISOString() });
+  });
+
   // ===================== VITE MIDDLEWARE =====================
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
